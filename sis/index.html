@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--
+    ================================================================
+    OS 2 BLOCOS DE SCRIPT DE RASTREIO ORIGINAIS FORAM REMOVIDOS DAQUI:
+
+    1) Pixel da UTMify (window.pixelId + carregamento de
+       https://cdn.utmify.com.br/scripts/pixel/pixel.js) — rastreava
+       conversões/eventos do pixel de anúncios.
+
+    2) Um segundo script, OFUSCADO (base64 + XOR) para dificultar a
+       leitura, que eu decodifiquei manualmente. Ele carregava:
+       https://cdn.utmify.com.br/scripts/utms/latest.js
+       Esse é o script de captura de UTMs da UTMify (rastreia de qual
+       anúncio/campanha o visitante veio). Por estar ofuscado de
+       propósito, é ainda mais claramente um script de rastreio.
+
+    Se você quiser usar a UTMify de novo depois (ex: para rastrear
+    suas próprias campanhas), me avise que eu recoloco de forma
+    limpa (sem ofuscação) e com seu próprio pixelId.
+    ================================================================
+  -->
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASSISTA AGORA!</title>
+
+
+  <style>
+    @keyframes pulsar {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    * {
+      font-family: "Roboto", sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .hero {
+      height: 40px;
+      width: 100%;
+      background: #DAA520;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 17px;
+      color: #fff;
+      position: absolute;
+    }
+
+    .container {
+      background: #000;
+      width: 100%;
+      height: auto;
+      min-height: calc(100vh - 70px);
+      display: flex;
+      justify-content: center;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 90px 10px 0px 10px;
+      box-sizing: border-box;
+    }
+
+    
+    .esconder {
+      display: none;
+    }
+    .esconder2 {
+      display: none;
+    }
+
+    .modal-descuento {
+      position: fixed;
+      inset: 0;
+      z-index: 999999999;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .modal-descuento-content {
+      width: 100%;
+      max-width: 520px;
+      background: linear-gradient(180deg, #2a1500 0%, #000000 100%);
+      border: 3px solid #ff7a00;
+      border-radius: 18px;
+      padding: 30px 25px;
+      box-sizing: border-box;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255, 122, 0, 0.35);
+    }
+
+    .modal-badge {
+      display: inline-block;
+      background: #ff7a00;
+      color: #000 !important;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    .modal-descuento-content h2 {
+      color: #ffffff !important;
+      font-size: 42px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .modal-texto {
+      color: #e8e8e8 !important;
+      font-size: 24px;
+      line-height: 1.4;
+    }
+
+    .precio-antiguo {
+      margin-top: 25px;
+      color: #ffffff !important;
+      font-size: 22px;
+    }
+
+    .precio-antiguo span {
+      color: #ff4d4d !important;
+      text-decoration: line-through;
+    }
+
+    .precio-nuevo {
+      margin-top: 15px;
+      color: #ff7a00 !important;
+      font-size: 60px;
+      font-weight: 900;
+      text-shadow: 0 0 18px rgba(255, 122, 0, .6);
+    }
+
+    .modal-aviso {
+      margin-top: 20px;
+      color: #ffd54a !important;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .boton-descuento {
+      display: block;
+      width: 100%;
+      margin-top: 30px;
+      padding: 18px;
+      box-sizing: border-box;
+      background: linear-gradient(180deg, #ff7a00, #ff3c00);
+      color: #ffffff !important;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 28px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .modal-descuento-content {
+        max-width: 95%;
+        padding: 22px 18px;
+      }
+
+      .modal-descuento-content h2 {
+        font-size: 30px;
+      }
+
+      .modal-texto {
+        font-size: 19px;
+      }
+
+      .precio-antiguo {
+        font-size: 20px;
+      }
+
+      .precio-nuevo {
+        font-size: 48px;
+      }
+
+      .modal-aviso {
+        font-size: 16px;
+      }
+
+      .boton-descuento {
+        font-size: 22px;
+        padding: 16px;
+      }
+    }
+
+    span {
+      font-size: 16px;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .button {
+      width: 400px;
+      max-width: 90%;
+      height: 60px;
+      border-radius: 8px;
+      background-color: transparent;
+      background-image: linear-gradient(150deg, #4fce5c 0%, #198835 100%);
+      padding: 10px;
+      font-weight: bold;
+      font-size: 20px;
+      color: #fff;
+      justify-content: center;
+      align-items: center;
+      /* animation: pulsar 2s infinite ease-in-out; */
+      margin-top: 50px;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+
+    .title {
+      margin-bottom: 25px;
+      color: #fff;
+      font-size: 25px;
+    }
+
+    .faq-container {
+      width: 100%;
+      margin-top: 250px;
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 15px;
+      box-sizing: border-box;
+      background-color: #fff;
+      text-align: initial;
+    }
+
+    .faq-question {
+      cursor: pointer;
+      padding: 10px;
+      height: 50px;
+      display: flex;
+      border-radius: 4px;
+      align-items: center;
+      box-sizing: border-box;
+      width: 100%;
+      text-align: initial;
+      background-image: linear-gradient(130deg, #3E274F 0%, #280031 61%);
+      font-size: 18px;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .faq-answer.active {
+      display: block;
+    }
+
+    .profile-container {
+      margin-top: 250px;
+      width: 80%;
+      margin-bottom: 30px;
+    }
+
+    .profile {
+      width: 150px;
+      border-radius: 8px;
+    }
+
+    .profile-text {
+      color: #fff;
+      margin-top: 10px;
+      font-size: 17px;
+    }
+
+    .footer {
+      margin-top: 250px;
+      background-color: #1a1a1a;
+      color: #fff;
+      height: 70px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      box-sizing: border-box;
+      padding: 10px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100000000000;
+      display: none;
+    }
+
+    .contentModal {
+      background-image: linear-gradient(180deg, #49390f 0%, #000000 100%);
+      width: 95%;
+      max-width: 600px;
+      height: 80%;
+      max-height: 600px;
+      border-radius: 8px;
+      border: 3px solid #fff;
+      color: #fff;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      padding: 20px 0;
+      box-sizing: border-box;
+    }
+
+    .titleModal {
+      font-size: 30px;
+      max-width: 95%;
+      font-weight: bold;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      column-gap: 10px;
+      margin: 20px 0;
+    }
+
+    .line {
+      height: 1px;
+      width: 130px;
+      background-color: #fff;
+    }
+
+    .fecharModal {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #ff3333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 25px;
+      margin-top: 30px;
+      cursor: pointer;
+    }
+
+
+    .faq-container {
+      margin: 60px 0;
+      width: 100%;
+      max-width: 610px;
+      background: #111;
+      padding: 20px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      color: #fff;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .accordion .item {
+      margin-bottom: 10px;
+      border: 1px solid #333;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .question {
+      background: #000;
+      color: #fff;
+      padding: 15px;
+      width: 100%;
+      text-align: left;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .question:hover {
+      background: #222;
+    }
+
+    .question.active {
+      background: #333;
+    }
+
+    .answer {
+      background: #1a1a1a;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease;
+      padding: 0 15px;
+    }
+
+    .answer p,
+    .answer {
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    .whatsapp-contact {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+
+    .whatsapp-contact p {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .whatsapp-contact a {
+      display: inline-block;
+      background: #25D366;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .whatsapp-contact a:hover {
+      background: #1ebc5c;
+    }
+
+    .professor-photo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background-image: url("./assets/images/profile.jpeg");
+      background-size: cover;
+      background-position: 30% 40%;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+
+      .question,
+      .answer {
+        font-size: 14px;
+      }
+
+      .whatsapp-contact a {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  </style>
+  
+  <script>!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);</script>
+<link rel="preload" href="https://scripts.converteai.net/beb06ebc-0219-4b97-b88f-8ccab6eb2442/players/6aa818c18916dbdbc83269db/v4/player.js" as="script">
+<link rel="preload" href="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js" as="script">
+<link rel="preload" href="https://cdn.converteai.net/beb06ebc-0219-4b97-b88f-8ccab6eb2442/6aa818af0d45faff80faa3c0/main.m3u8" as="fetch">
+<link rel="dns-prefetch" href="https://cdn.converteai.net">
+<link rel="dns-prefetch" href="https://scripts.converteai.net">
+<link rel="dns-prefetch" href="https://images.converteai.net">
+<link rel="dns-prefetch" href="https://license.vturb.com">
+  
+</head>
+<div id="notificacoes-vendas" style="
+  position: fixed;
+  bottom: 20px;
+  right: 15px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+"></div>
+
+<body>
+  <div class="container">
+    <div class="content">
+      <div style="position: relative; width: 100%; max-width: 600px;">
+
+        <vturb-smartplayer id="vid-6aa818c18916dbdbc83269db" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 178.21782178217822% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer> <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/beb06ebc-0219-4b97-b88f-8ccab6eb2442/players/6aa818c18916dbdbc83269db/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+
+        <span style="position: absolute; bottom: .5px; z-index: 1000000; right: 30px;">🎁</span>
+
+      </div>
+
+      <span class="esconder" style="font-size: 15px; margin-top: 40px;">🎁 CUPÓN DE DESCUENTO APLICADO</span>
+
+
+      <div class="esconder">
+        <div
+          style="padding: 15px; margin-top: 20px; box-sizing: border-box; display: flex; justify-content: center; background-color: #c55322; color: #000; border-radius: 10px;">
+          <div class="esconder" id="price" style="width: 100%; box-sizing: border-box; max-width: 600px;">
+            <div id="oferta">
+              <h1 style="margin-bottom: 10px;">¡ÚLTIMO DÍA!</h1>
+              <h2></h2>
+              <p id="contador"></p>
+              <h4 style="margin-top: 15px;">¡OFERTA VÁLIDA POR TIEMPO LIMITADO!</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-descuento esconder2"> <div class="modal-descuento-content"> <div class="modal-badge">🎉 ¡FELICIDADES!</div> <h2>¡Has desbloqueado un descuento exclusivo!</h2> <p class="modal-texto"> Como beneficio especial, tu precio acaba de reducirse aún más. </p> <div class="precio-antiguo"> Antes: <span>US$27</span> </div> <div class="precio-nuevo"> Ahora solo <strong>US$17</strong> </div> <p class="modal-aviso"> ⚠️ Esta oportunidad es limitada y puede desaparecer en cualquier momento. </p> <a href="https://pay.hub.la/NJ4GVeqLSzyyMa3RG0B2" class="boton-descuento smartplayer-click-event" >GARANTIZAR MI ACCESO</a> </div> </div>
+
+      <a style="margin-top: 20px;" href="https://pay.hub.la/bysccK05aCeyAYuLJpGh" class="esconder">
+        <button style="margin-top: 10px;" class="button smartplayer-click-event">GARANTIZAR MI ACCESO</button>
+      </a>
+
+
+
+
+      <section class="esconder"
+        style="width:100%; padding:40px 15px; margin-top: 20px; background:#0a0a0a; box-sizing:border-box;">
+
+        <div style="max-width:600px; margin:0 auto; text-align:center;">
+
+          <h2 style="color:#fff; font-size:26px; margin-bottom:10px;">
+            TODO LO QUE RECIBES AL ACCEDER AL
+          </h2>
+
+          <h1 style="color:#ff7a00; font-size:30px; margin-bottom:30px;">
+            SISTEMA MILLONARIO 🚀
+          </h1>
+
+        </div>
+
+        <!-- ITEM 1 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen1.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            Acceso Completo al Sistema Millonario
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Accede a la plataforma que crea productos ganadores automáticamente con inteligencia artificial, incluso si
+            estás empezando desde cero.
+          </p>
+
+        </div>
+
+        <!-- ITEM 2 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen2.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            Entrenamiento Completo Paso a Paso
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Aprende exactamente cómo usar el sistema para generar ingresos, con un método claro, directo y sin
+            complicaciones.
+          </p>
+
+        </div>
+
+        <!-- ITEM 3 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen3.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            Método de Ventas en Automático
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Descubre cómo vender todos los días de forma automática, sin depender de experiencia previa ni conocimientos
+            técnicos.
+          </p>
+
+        </div>
+
+        <!-- ITEM 4 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen4.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            Templates de Ventas Validados
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Utiliza estructuras listas que ya están probadas y funcionan, para vender más rápido y sin perder tiempo
+            creando desde cero.
+          </p>
+
+        </div>
+
+        <!-- ITEM 5 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen5.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            8 Robots Funcionando para Ti
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Automatiza tareas clave con inteligencia artificial y deja que el sistema trabaje por ti mientras generas
+            resultados.
+          </p>
+
+        </div>
+
+        <!-- ITEM 6 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen6.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            Generador de Imágenes + Anuncios + Páginas
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Crea imágenes, anuncios y páginas completas en minutos sin saber diseño ni programación.
+          </p>
+
+        </div>
+
+        <!-- ITEM 7 -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:#111; border-radius:12px; padding:20px; border:1px solid #222;">
+
+          <img src="assets/images/imagen7.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:20px; margin-bottom:10px;">
+            Biblioteca de Comandos + Creador de Productos
+          </h3>
+
+          <p style="color:#ccc; font-size:15px; line-height:1.5;">
+            Accede a prompts listos y crea productos digitales completos en minutos, listos para vender.
+          </p>
+
+        </div>
+
+        <!-- ITEM 8 (FOCO FORTE) -->
+        <div
+          style="max-width:600px; margin:0 auto 30px auto; background:linear-gradient(180deg,#1a1a1a,#000); border-radius:12px; padding:20px; border:2px solid #ff7a00;">
+
+          <img src="assets/images/imagen8.png" style="width:100%; border-radius:10px; margin-bottom:15px;" />
+
+          <h3 style="color:#ff7a00; font-size:22px; margin-bottom:10px;">
+            Módulo Caja Rápida 💰
+          </h3>
+
+          <p style="color:#fff; font-size:16px; line-height:1.6;">
+            Recibe productos ya creados y listos para vender. Solo tienes que subirlos y empezar a generar ingresos
+            rápidamente, incluso sin experiencia.
+          </p>
+
+        </div>
+
+        <!-- FINAL -->
+        <div style="text-align:center; margin-top:30px;">
+          <h2 style="color:#ff7a00; font-size:26px;">
+            Y MUCHO MÁS 🔥
+          </h2>
+        </div>
+
+      </section>
+
+
+      <a style="margin-top: 20px;" href="https://pay.hub.la/bysccK05aCeyAYuLJpGh" class="esconder">
+        <button style="margin-top: 10px;" class="button smartplayer-click-event">GARANTIZAR MI ACCESO</button>
+      </a>
+
+
+      <section class="esconder" style="width:100%; padding:40px 15px; background:#000; box-sizing:border-box;">
+
+        <div style="max-width:600px; margin:0 auto; text-align:center;">
+
+          <h2 style="color:#fff; font-size:24px; margin-bottom:10px;">
+            LO QUE NUESTROS ALUMNOS ESTÁN LOGRANDO 🔥
+          </h2>
+
+          <p style="color:#aaa; font-size:15px; margin-bottom:30px;">
+            Resultados reales de personas que ya están utilizando el Sistema Millonario
+          </p>
+
+        </div>
+
+        <!-- IMAGENS -->
+        <div style="max-width:600px; margin:0 auto; display:flex; flex-direction:column; gap:20px;">
+
+          <!-- IMAGEM 1 -->
+          <div style="background:linear-gradient(145deg,#ff7a00,#ff3c00); padding:3px; border-radius:15px;">
+
+            <div style="background:#111; border-radius:12px; padding:10px;">
+              <img src="assets/images/dep1.png" style="width:100%; border-radius:10px;" />
+            </div>
+
+          </div>
+
+          <!-- IMAGEM 2 -->
+          <div style="background:linear-gradient(145deg,#ff7a00,#ff3c00); padding:3px; border-radius:15px;">
+
+            <div style="background:#111; border-radius:12px; padding:10px;">
+              <img src="assets/images/dep2.png" style="width:100%; border-radius:10px;" />
+            </div>
+
+          </div>
+
+          <div style="background:linear-gradient(145deg,#ff7a00,#ff3c00); padding:3px; border-radius:15px;">
+
+            <div style="background:#111; border-radius:12px; padding:10px;">
+              <img src="assets/images/dep3.png" style="width:100%; border-radius:10px;" />
+            </div>
+
+          </div>
+
+          <div style="background:linear-gradient(145deg,#ff7a00,#ff3c00); padding:3px; border-radius:15px;">
+
+            <div style="background:#111; border-radius:12px; padding:10px;">
+              <img src="assets/images/dep4.png" style="width:100%; border-radius:10px;" />
+            </div>
+
+          </div>
+
+          <div style="background:linear-gradient(145deg,#ff7a00,#ff3c00); padding:3px; border-radius:15px;">
+
+            <div style="background:#111; border-radius:12px; padding:10px;">
+              <img src="assets/images/dep5.png" style="width:100%; border-radius:10px;" />
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- FRASE FINAL -->
+        <div style="max-width:600px; margin:30px auto 0 auto; text-align:center;">
+
+          <p style="color:#fff; font-size:16px; line-height:1.5;">
+            Tú puedes ser el próximo en obtener resultados como estos 🚀
+          </p>
+
+        </div>
+
+      </section>
+
+
+
+
+
+      <a style="margin-top: 20px;" href="https://pay.hub.la/bysccK05aCeyAYuLJpGh" class="esconder">
+        <button style="margin-top: 10px;" class="button smartplayer-click-event">GARANTIZAR MI ACCESO</button>
+      </a>
+
+
+
+
+
+
+      <div class="footer">© SISTEMA MILLONARIO.</br> TODOS LOS DERECHOS RESERVADOS.</div>
+
+
+
+
+
+      <script>
+        // CONTROLE DE EXIBIÇÃO ATRELADO AO VÍDEO — NÃO É RASTREIO.
+        // Quando o player do VSL estiver pronto, este script programa a
+        // exibição (só visual, no navegador do próprio visitante) de
+        // elementos com classe ".esconder" após 1284 segundos (~21min)
+        // de vídeo, e dos elementos ".esconder2" (o modal de desconto)
+        // após 1756 segundos (~29min). É a lógica de "liberar o botão de
+        // compra depois de X minutos assistidos" comum em VSL.
+        var delaySeconds = 1284;
+        var delaySeconds2 = 1756;
+        var player = document.querySelector("vturb-smartplayer");
+        player.addEventListener("player:ready", function () {
+          player.displayHiddenElements(delaySeconds, [".esconder"], {
+            persist: true //
+          });
+        });
+
+        player.addEventListener("player:ready", function () {
+          player.displayHiddenElements(delaySeconds2, [".esconder2"], {
+            persist: false
+          });
+        });
+      </script>
+
+
+
+      <script>
+        // ⚠️ ATENÇÃO — "PROVA SOCIAL" FALSA / SIMULADA.
+        // Este bloco NÃO manda nem recebe dados de nenhum servidor — ele
+        // apenas sorteia nomes de uma lista fixa (50 nomes + 50
+        // sobrenomes hispânicos) e cria, no canto da tela, pop-ups tipo
+        // "Fulano aseguró su acceso con descuento" a cada 5-10 segundos,
+        // como se fossem compras acontecendo em tempo real.
+        // NENHUMA dessas "vendas" é real — são notificações 100%
+        // fictícias geradas no navegador do visitante. Recomendo avaliar
+        // se você quer manter esse tipo de prova social falsa na sua
+        // oferta (pode ter implicação ética/legal dependendo do público
+        // e da legislação do seu país sobre publicidade enganosa).
+        document.addEventListener("DOMContentLoaded", () => {
+
+          const nomes = [
+            "Juan", "Carlos", "Luis", "Miguel", "Pedro", "Jorge", "Andrés", "Diego", "Fernando", "Ricardo",
+            "María", "Ana", "Sofía", "Camila", "Valentina", "Lucía", "Daniela", "Paula", "Carla", "Fernanda",
+            "José", "Manuel", "Antonio", "Francisco", "David", "Raúl", "Sergio", "Eduardo", "Hugo", "Alberto",
+            "Laura", "Elena", "Patricia", "Gabriela", "Andrea", "Natalia", "Verónica", "Isabella", "Renata", "Juliana",
+            "Mateo", "Sebastián", "Emilio", "Cristian", "Iván", "Oscar", "Roberto", "Tomás", "Ángel", "Esteban"
+          ];
+
+          const sobrenomes = [
+            "García", "Rodríguez", "Martínez", "López", "González", "Pérez", "Sánchez", "Ramírez", "Torres", "Flores",
+            "Rivera", "Gómez", "Díaz", "Vargas", "Castro", "Ortiz", "Morales", "Silva", "Rojas", "Navarro",
+            "Mendoza", "Herrera", "Medina", "Aguilar", "Vega", "Cruz", "Reyes", "Romero", "Guerrero", "Ramos",
+            "Ortega", "Delgado", "Suárez", "Paredes", "Campos", "Cabrera", "Fuentes", "Valdez", "Peña", "Salazar",
+            "Arias", "Benítez", "Cordero", "Escobar", "Figueroa", "Galindo", "Ibarra", "León", "Montoya", "Zamora"
+          ];
+
+          const container = document.getElementById("notificacoes-vendas");
+
+          function nomeAleatorio() {
+            const nome = nomes[Math.floor(Math.random() * nomes.length)];
+            const sobrenome = sobrenomes[Math.floor(Math.random() * sobrenomes.length)];
+            return `${nome} ${sobrenome}`;
+          }
+
+          function criarNotificacao() {
+            const nome = nomeAleatorio();
+
+            const notif = document.createElement("div");
+
+            notif.style.cssText = `
+      background: rgba(20,20,20,0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 12px 14px;
+      width: 260px;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,122,0,0.3);
+      transform: translateX(-120%);
+      opacity: 0;
+      transition: all 0.4s ease;
+    `;
+
+            notif.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="
+          width:35px;
+          height:35px;
+          border-radius:50%;
+          background: linear-gradient(135deg,#ff7a00,#ff3c00);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-weight:bold;
+        ">
+          🔥
+        </div>
+        <div style="font-size:13px; line-height:1.3;">
+          <strong>${nome}</strong><br>
+          aseguró su acceso con descuento
+        </div>
+      </div>
+    `;
+
+            container.appendChild(notif);
+
+            // anima entrada
+            setTimeout(() => {
+              notif.style.transform = "translateX(0)";
+              notif.style.opacity = "1";
+            }, 100);
+
+            // remove depois
+            setTimeout(() => {
+              notif.style.transform = "translateX(-120%)";
+              notif.style.opacity = "0";
+
+              setTimeout(() => notif.remove(), 400);
+            }, 5000);
+          }
+
+          // 👇 OBSERVADOR DO BOTÃO (classe .esconder)
+          const observer = new MutationObserver(() => {
+            const botao = document.querySelector(".esconder");
+
+            if (botao && window.getComputedStyle(botao).display !== "none") {
+
+              observer.disconnect();
+
+              // espera 5s depois que botão aparece
+              setTimeout(() => {
+
+                criarNotificacao();
+
+                setInterval(() => {
+                  criarNotificacao();
+                }, Math.random() * 5000 + 5000); // 5 a 10s
+
+              }, 5000);
+            }
+          });
+
+          observer.observe(document.body, {
+            attributes: true,
+            childList: true,
+            subtree: true
+          });
+
+        });
+      </script>
+
+
+
+
+
+      <script>
+        // CONTADOR REGRESSIVO DA OFERTA — NÃO É RASTREIO.
+        // Calcula quanto falta até a próxima "meia hora cheia" (ex: se
+        // são 14:07, mira 14:30; se faltar menos de 20min, pula pra
+        // próxima marca) e atualiza o texto "#contador" a cada segundo,
+        // simulando um cronômetro de urgência ("a oferta acaba em...").
+        // É recalculado no relógio local do navegador — não vem de
+        // nenhum servidor externo.
+        let intervalo = null;
+        let timerIniciado = false;
+
+        function atualizarContagem() {
+          const agora = new Date();
+          let horaAtual = agora.getHours();
+          let minutosAtual = agora.getMinutes();
+
+          let fim = new Date();
+
+          // Define próximo marco :30 ou :00
+          if (minutosAtual < 30) {
+            fim.setHours(horaAtual, 30, 0, 0);
+          } else {
+            fim.setHours(horaAtual + 1, 0, 0, 0);
+          }
+
+          // Se faltar menos de 20 min, pula pro próximo marco
+          let diferenca = fim - agora;
+          if (diferenca < 20 * 60 * 1000) {
+            if (fim.getMinutes() === 0) {
+              fim.setHours(fim.getHours(), 30, 0, 0);
+            } else {
+              fim.setHours(fim.getHours() + 1, 0, 0, 0);
+            }
+          }
+
+          diferenca = fim - agora;
+
+          const horas = Math.floor((diferenca / (1000 * 60 * 60)) % 24);
+          const minutos = Math.floor((diferenca / (1000 * 60)) % 60);
+          const segundos = Math.floor((diferenca / 1000) % 60);
+
+          const horaFimFormatada = ("0" + fim.getHours()).slice(-2);
+          const minFimFormatado = ("0" + fim.getMinutes()).slice(-2);
+
+          const oferta = document.querySelector('#oferta h2');
+          const contador = document.getElementById('contador');
+
+          if (oferta) {
+            oferta.innerHTML = `La promoción termina a las ${horaFimFormatada}:${minFimFormatado}`;
+          }
+
+          if (contador) {
+            contador.innerHTML = `Termina en: ${horas}h ${minutos}m ${segundos}s`;
+          }
+
+          if (diferenca <= 0) {
+            if (contador) {
+              contador.innerHTML = "¡Aún estás a tiempo! ¡Aprovecha!";
+            }
+            clearInterval(intervalo);
+            intervalo = null;
+          }
+        }
+
+        function iniciarTimer() {
+          if (timerIniciado) return;
+
+          const contador = document.getElementById("contador");
+          if (!contador) return;
+
+          // garante que está visível
+          contador.style.display = "block";
+
+          atualizarContagem();
+          intervalo = setInterval(atualizarContagem, 1000);
+
+          timerIniciado = true;
+        }
+
+        // 👇 FICA OBSERVANDO APENAS UMA VEZ
+        document.addEventListener("DOMContentLoaded", () => {
+
+          const checkLiberacao = setInterval(() => {
+            const elementos = document.querySelectorAll(".esconder");
+
+            let liberado = false;
+
+            elementos.forEach(el => {
+              if (window.getComputedStyle(el).display !== "none") {
+                liberado = true;
+              }
+            });
+
+            if (liberado) {
+              iniciarTimer();
+              clearInterval(checkLiberacao);
+            }
+
+          }, 500); // leve e suficiente
+        });
+      </script>
+
+      <script>
+        // ⚠️ ATENÇÃO — BLOQUEIO DO BOTÃO "VOLTAR" DO NAVEGADOR.
+        // Isto NÃO é um pixel de rastreio (não envia dados a lugar
+        // nenhum), mas é um script de manipulação de navegação:
+        // ele intercepta o botão "Voltar" do visitante e, em vez de
+        // deixá-lo sair da página, força um redirecionamento para
+        // OUTRO domínio (https://viniciusarmondesonline.com/back-redirect.html),
+        // provavelmente uma página de "oferta de última chance" ou
+        // reter o visitante. Deixei ativo porque você pediu para
+        // sinalizar e não remover automaticamente — mas como aponta
+        // para um domínio de terceiros que eu não baixei/controlo,
+        // recomendo decidir se quer manter, trocar o destino, ou
+        // remover esse comportamento.
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function() {
+          history.pushState(null, null, location.href);
+          window.location.replace('https://sistemamillona.online/black/index.html');
+        });
+      </script>
+
+</body>
+
+</html>
